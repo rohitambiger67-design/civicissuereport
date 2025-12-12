@@ -1,0 +1,189 @@
+import { useState, useMemo } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import IssueCard from "@/components/IssueCard";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { mockIssues } from "@/data/mockIssues";
+import { Issue, IssueCategory, IssueStatus } from "@/types/issue";
+import { cn } from "@/lib/utils";
+
+const Issues = () => {
+  const { t } = useLanguage();
+  const [issues, setIssues] = useState<Issue[]>(mockIssues);
+  const [categoryFilter, setCategoryFilter] = useState<IssueCategory | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<IssueStatus | "all">("all");
+  const [sortBy, setSortBy] = useState<"recent" | "likes">("recent");
+
+  const categories: (IssueCategory | "all")[] = [
+    "all",
+    "roads",
+    "drainage",
+    "garbage",
+    "streetlights",
+    "water",
+    "encroachment",
+    "other",
+  ];
+
+  const statuses: (IssueStatus | "all")[] = ["all", "pending", "inProgress", "resolved"];
+
+  const categoryIcons: Record<IssueCategory | "all", string> = {
+    all: "📋",
+    roads: "🛣️",
+    drainage: "🚰",
+    garbage: "🗑️",
+    streetlights: "💡",
+    water: "💧",
+    encroachment: "🏗️",
+    other: "📋",
+  };
+
+  const filteredIssues = useMemo(() => {
+    let result = [...issues];
+
+    if (categoryFilter !== "all") {
+      result = result.filter((issue) => issue.category === categoryFilter);
+    }
+
+    if (statusFilter !== "all") {
+      result = result.filter((issue) => issue.status === statusFilter);
+    }
+
+    if (sortBy === "recent") {
+      result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    } else {
+      result.sort((a, b) => b.likes - a.likes);
+    }
+
+    return result;
+  }, [issues, categoryFilter, statusFilter, sortBy]);
+
+  const handleLike = (id: string) => {
+    setIssues((prev) =>
+      prev.map((issue) =>
+        issue.id === id ? { ...issue, likes: issue.likes + 1 } : issue
+      )
+    );
+  };
+
+  const handleReReport = (id: string) => {
+    setIssues((prev) =>
+      prev.map((issue) =>
+        issue.id === id ? { ...issue, reports: issue.reports + 1 } : issue
+      )
+    );
+  };
+
+  const statusCounts = useMemo(() => {
+    return {
+      all: issues.length,
+      pending: issues.filter((i) => i.status === "pending").length,
+      inProgress: issues.filter((i) => i.status === "inProgress").length,
+      resolved: issues.filter((i) => i.status === "resolved").length,
+    };
+  }, [issues]);
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+      <main className="flex-1 py-6">
+        <div className="container">
+          {/* Page Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">{t("viewIssues")}</h1>
+            <p className="text-muted-foreground">{t("subtitle")}</p>
+          </div>
+
+          {/* Filters */}
+          <div className="mb-6 space-y-4">
+            {/* Status Tabs */}
+            <div className="flex flex-wrap gap-2">
+              {statuses.map((status) => (
+                <Button
+                  key={status}
+                  variant={statusFilter === status ? "civic" : "outline"}
+                  size="sm"
+                  onClick={() => setStatusFilter(status)}
+                  className="gap-2"
+                >
+                  {t(status === "all" ? "all" : status)}
+                  <Badge
+                    variant="secondary"
+                    className={cn(
+                      "ml-1 h-5 min-w-[20px] px-1.5 text-xs",
+                      statusFilter === status && "bg-primary-foreground/20"
+                    )}
+                  >
+                    {statusCounts[status]}
+                  </Badge>
+                </Button>
+              ))}
+            </div>
+
+            {/* Category & Sort */}
+            <div className="flex flex-wrap gap-3">
+              <Select
+                value={categoryFilter}
+                onValueChange={(val) => setCategoryFilter(val as IssueCategory | "all")}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder={t("filterByCategory")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      <span className="flex items-center gap-2">
+                        <span>{categoryIcons[cat]}</span>
+                        <span>{t(cat === "all" ? "all" : cat)}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={sortBy} onValueChange={(val) => setSortBy(val as "recent" | "likes")}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder={t("sortBy")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">{t("mostRecent")}</SelectItem>
+                  <SelectItem value="likes">{t("mostLiked")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Issues Grid */}
+          {filteredIssues.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredIssues.map((issue) => (
+                <IssueCard
+                  key={issue.id}
+                  issue={issue}
+                  onLike={handleLike}
+                  onReReport={handleReReport}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground text-lg">No issues found matching your filters.</p>
+            </div>
+          )}
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default Issues;
