@@ -1,11 +1,13 @@
 import { Issue } from "@/types/issue";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ThumbsUp, AlertTriangle, MapPin, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface IssueCardProps {
   issue: Issue;
@@ -15,6 +17,8 @@ interface IssueCardProps {
 
 const IssueCard = ({ issue, onLike, onReReport }: IssueCardProps) => {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const statusColors = {
     pending: "bg-amber-100 text-amber-800 border-amber-200",
@@ -33,11 +37,21 @@ const IssueCard = ({ issue, onLike, onReReport }: IssueCardProps) => {
   };
 
   const handleLike = () => {
+    if (!user) {
+      toast.error(t("loginToSupport"));
+      navigate("/auth");
+      return;
+    }
     onLike(issue.id);
     toast.success(t("likeSuccess"));
   };
 
   const handleReReport = () => {
+    if (!user) {
+      toast.error(t("loginToSupport"));
+      navigate("/auth");
+      return;
+    }
     onReReport(issue.id);
     toast.success(t("reReportSuccess"));
   };
