@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CameraCapture from "@/components/CameraCapture";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -15,12 +16,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Send, MapPin, Building2 } from "lucide-react";
+import { Send, MapPin, Building2, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { IssueCategory, departments } from "@/types/issue";
 
 const Report = () => {
   const { t } = useLanguage();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -79,6 +81,42 @@ const Report = () => {
   };
 
   const isValid = capturedImage && category && description.trim();
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Show login prompt if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-1 flex items-center justify-center py-12">
+          <Card className="max-w-md mx-4 text-center">
+            <CardContent className="pt-8 pb-6 space-y-4">
+              <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <LogIn className="h-8 w-8 text-primary" />
+              </div>
+              <h2 className="text-xl font-semibold">{t("loginRequired")}</h2>
+              <p className="text-muted-foreground">{t("loginToReport")}</p>
+              <Link to="/auth">
+                <Button variant="civic" className="gap-2 mt-2">
+                  <LogIn className="h-4 w-4" />
+                  {t("login")}
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

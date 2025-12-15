@@ -1,13 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import LanguageSelector from "./LanguageSelector";
+import UserDropdown from "./UserDropdown";
 import { Button } from "@/components/ui/button";
-import { Camera, Home, List, Menu, X } from "lucide-react";
+import { Camera, Home, List, Menu, X, LogIn } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const Header = () => {
   const { t } = useLanguage();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -54,6 +57,20 @@ const Header = () => {
         {/* Right Section */}
         <div className="flex items-center gap-3">
           <LanguageSelector />
+          
+          {/* Auth Section */}
+          {!loading && (
+            user ? (
+              <UserDropdown />
+            ) : (
+              <Link to="/auth">
+                <Button variant="civic" size="sm" className="gap-2">
+                  <LogIn className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t("login")}</span>
+                </Button>
+              </Link>
+            )
+          )}
           
           {/* Mobile Menu Button */}
           <Button

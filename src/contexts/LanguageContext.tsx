@@ -321,6 +321,138 @@ const translations: Translations = {
     hi: "अन्य लोग प्राथमिकता बढ़ाने के लिए लाइक या री-रिपोर्ट कर सकते हैं। समाधान की प्रगति ट्रैक करें।",
     kn: "ಇತರರು ಆದ್ಯತೆಯನ್ನು ಹೆಚ್ಚಿಸಲು ಲೈಕ್ ಅಥವಾ ಮರು-ವರದಿ ಮಾಡಬಹುದು. ಪರಿಹಾರ ಪ್ರಗತಿಯನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ."
   },
+
+  // Auth
+  login: {
+    en: "Login",
+    hi: "लॉगिन",
+    kn: "ಲಾಗಿನ್"
+  },
+  signup: {
+    en: "Sign Up",
+    hi: "साइन अप",
+    kn: "ಸೈನ್ ಅಪ್"
+  },
+  logout: {
+    en: "Log Out",
+    hi: "लॉग आउट",
+    kn: "ಲಾಗ್ ಔಟ್"
+  },
+  username: {
+    en: "Username",
+    hi: "उपयोगकर्ता नाम",
+    kn: "ಬಳಕೆದಾರ ಹೆಸರು"
+  },
+  password: {
+    en: "Password",
+    hi: "पासवर्ड",
+    kn: "ಪಾಸ್‌ವರ್ಡ್"
+  },
+  confirmPassword: {
+    en: "Confirm Password",
+    hi: "पासवर्ड की पुष्टि करें",
+    kn: "ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ"
+  },
+  enterUsername: {
+    en: "Enter your username",
+    hi: "अपना उपयोगकर्ता नाम दर्ज करें",
+    kn: "ನಿಮ್ಮ ಬಳಕೆದಾರ ಹೆಸರನ್ನು ನಮೂದಿಸಿ"
+  },
+  enterPassword: {
+    en: "Enter your password",
+    hi: "अपना पासवर्ड दर्ज करें",
+    kn: "ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ"
+  },
+  chooseUsername: {
+    en: "Choose a username",
+    hi: "एक उपयोगकर्ता नाम चुनें",
+    kn: "ಬಳಕೆದಾರ ಹೆಸರನ್ನು ಆಯ್ಕೆಮಾಡಿ"
+  },
+  createPassword: {
+    en: "Create a password",
+    hi: "एक पासवर्ड बनाएं",
+    kn: "ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ"
+  },
+  createAccount: {
+    en: "Create Account",
+    hi: "खाता बनाएं",
+    kn: "ಖಾತೆ ರಚಿಸಿ"
+  },
+  welcomeBack: {
+    en: "Welcome",
+    hi: "स्वागत है",
+    kn: "ಸ್ವಾಗತ"
+  },
+  authSubtitle: {
+    en: "Login or create an account to report issues",
+    hi: "समस्याओं की रिपोर्ट करने के लिए लॉगिन करें या खाता बनाएं",
+    kn: "ಸಮಸ್ಯೆಗಳನ್ನು ವರದಿ ಮಾಡಲು ಲಾಗಿನ್ ಮಾಡಿ ಅಥವಾ ಖಾತೆ ರಚಿಸಿ"
+  },
+  usernameHint: {
+    en: "At least 3 characters",
+    hi: "कम से कम 3 अक्षर",
+    kn: "ಕನಿಷ್ಠ 3 ಅಕ್ಷರಗಳು"
+  },
+  loginSuccess: {
+    en: "Logged in successfully!",
+    hi: "सफलतापूर्वक लॉगिन किया!",
+    kn: "ಯಶಸ್ವಿಯಾಗಿ ಲಾಗಿನ್ ಆಗಿದ್ದೀರಿ!"
+  },
+  signupSuccess: {
+    en: "Account created successfully!",
+    hi: "खाता सफलतापूर्वक बनाया गया!",
+    kn: "ಖಾತೆ ಯಶಸ್ವಿಯಾಗಿ ರಚಿಸಲಾಗಿದೆ!"
+  },
+  passwordMismatch: {
+    en: "Passwords do not match",
+    hi: "पासवर्ड मेल नहीं खाते",
+    kn: "ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಾಣಿಕೆಯಾಗುತ್ತಿಲ್ಲ"
+  },
+  viewMyIssues: {
+    en: "View My Issues",
+    hi: "मेरी समस्याएं देखें",
+    kn: "ನನ್ನ ಸಮಸ್ಯೆಗಳನ್ನು ವೀಕ್ಷಿಸಿ"
+  },
+  myReportedIssues: {
+    en: "My Reported Issues",
+    hi: "मेरी रिपोर्ट की गई समस्याएं",
+    kn: "ನಾನು ವರದಿ ಮಾಡಿದ ಸಮಸ್ಯೆಗಳು"
+  },
+  reportNew: {
+    en: "Report New",
+    hi: "नई रिपोर्ट",
+    kn: "ಹೊಸ ವರದಿ"
+  },
+  noIssuesYet: {
+    en: "No issues reported yet",
+    hi: "अभी तक कोई समस्या रिपोर्ट नहीं की गई",
+    kn: "ಇನ್ನೂ ಯಾವುದೇ ಸಮಸ್ಯೆ ವರದಿ ಮಾಡಿಲ್ಲ"
+  },
+  noIssuesDesc: {
+    en: "Start reporting civic issues to help improve your city",
+    hi: "अपने शहर को बेहतर बनाने में मदद के लिए नागरिक समस्याओं की रिपोर्ट करना शुरू करें",
+    kn: "ನಿಮ್ಮ ನಗರವನ್ನು ಸುಧಾರಿಸಲು ಸಹಾಯ ಮಾಡಲು ನಾಗರಿಕ ಸಮಸ್ಯೆಗಳನ್ನು ವರದಿ ಮಾಡಲು ಪ್ರಾರಂಭಿಸಿ"
+  },
+  reportFirstIssue: {
+    en: "Report Your First Issue",
+    hi: "अपनी पहली समस्या रिपोर्ट करें",
+    kn: "ನಿಮ್ಮ ಮೊದಲ ಸಮಸ್ಯೆಯನ್ನು ವರದಿ ಮಾಡಿ"
+  },
+  loginRequired: {
+    en: "Please login to continue",
+    hi: "जारी रखने के लिए कृपया लॉगिन करें",
+    kn: "ಮುಂದುವರಿಸಲು ದಯವಿಟ್ಟು ಲಾಗಿನ್ ಮಾಡಿ"
+  },
+  loginToReport: {
+    en: "Login to Report Issue",
+    hi: "समस्या रिपोर्ट करने के लिए लॉगिन करें",
+    kn: "ಸಮಸ್ಯೆ ವರದಿ ಮಾಡಲು ಲಾಗಿನ್ ಮಾಡಿ"
+  },
+  loginToSupport: {
+    en: "Login to support this issue",
+    hi: "इस समस्या का समर्थन करने के लिए लॉगिन करें",
+    kn: "ಈ ಸಮಸ್ಯೆಯನ್ನು ಬೆಂಬಲಿಸಲು ಲಾಗಿನ್ ಮಾಡಿ"
+  },
 };
 
 interface LanguageContextType {
