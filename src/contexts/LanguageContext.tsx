@@ -453,6 +453,11 @@ const translations: Translations = {
     hi: "इस समस्या का समर्थन करने के लिए लॉगिन करें",
     kn: "ಈ ಸಮಸ್ಯೆಯನ್ನು ಬೆಂಬಲಿಸಲು ಲಾಗಿನ್ ಮಾಡಿ"
   },
+  viewDatabase: {
+    en: "View Database",
+    hi: "डेटाबेस देखें",
+    kn: "ಡೇಟಾಬೇಸ್ ವೀಕ್ಷಿಸಿ"
+  },
 };
 
 interface LanguageContextType {
