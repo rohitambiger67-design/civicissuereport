@@ -1,16 +1,10 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import { Camera, ArrowRight, CheckCircle, Users, TrendingUp } from "lucide-react";
+import { Camera, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   const { t } = useLanguage();
-
-  const stats = [
-    { value: "2,847", label: t("issuesReported"), icon: TrendingUp },
-    { value: "1,923", label: t("issuesResolved"), icon: CheckCircle },
-    { value: "15,430", label: t("activeCitizens"), icon: Users },
-  ];
 
   return (
     <section className="relative overflow-hidden gradient-hero py-16 md:py-24">
@@ -58,21 +52,15 @@ const HeroSection = () => {
             </Link>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-3xl">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div
-                  key={index}
-                  className="flex flex-col items-center gap-2 rounded-2xl bg-white/10 p-6 backdrop-blur-sm transition-transform hover:scale-105"
-                >
-                  <Icon className="h-6 w-6 text-civic-saffron" />
-                  <span className="text-3xl font-bold">{stat.value}</span>
-                  <span className="text-sm text-primary-foreground/70">{stat.label}</span>
-                </div>
-              );
-            })}
+          {/* Civic Sense Paragraph */}
+          <div className="max-w-3xl rounded-2xl bg-white/10 p-6 backdrop-blur-sm">
+            <p className="text-primary-foreground/90 text-base md:text-lg leading-relaxed">
+              <strong className="text-civic-saffron">Civic Sense</strong> is the foundation of a thriving community. 
+              It means taking responsibility for our shared spaces—keeping our streets clean, respecting public property, 
+              following traffic rules, and being considerate neighbors. When each citizen contributes to the well-being 
+              of their city, we create safer, cleaner, and more harmonious environments for everyone. 
+              Together, let's build a city we're proud to call home.
+            </p>
           </div>
         </div>
       </div>

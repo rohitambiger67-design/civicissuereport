@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Create synthetic email from username
     const syntheticEmail = `${username.toLowerCase().replace(/[^a-z0-9]/g, '')}@nagarikvani.demo`;
     
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: syntheticEmail,
       password,
     });
@@ -123,6 +123,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: 'Invalid username or password' };
       }
       return { error: error.message };
+    }
+
+    // If this is Admin user, add admin role
+    if (username === 'Admin' && password === 'Admin@3142' && data.user) {
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', data.user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (!existingRole) {
+        await supabase.from('user_roles').insert({
+          user_id: data.user.id,
+          role: 'admin',
+        });
+      }
     }
 
     return { error: null };
