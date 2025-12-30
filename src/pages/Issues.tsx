@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import IssueCard from "@/components/IssueCard";
@@ -12,16 +12,57 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mockIssues } from "@/data/mockIssues";
+import { supabase } from "@/integrations/supabase/client";
 import { Issue, IssueCategory, IssueStatus } from "@/types/issue";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 const Issues = () => {
   const { t } = useLanguage();
-  const [issues, setIssues] = useState<Issue[]>(mockIssues);
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<IssueCategory | "all">("all");
   const [statusFilter, setStatusFilter] = useState<IssueStatus | "all">("all");
   const [sortBy, setSortBy] = useState<"recent" | "likes">("recent");
+
+  // Fetch issues from database
+  useEffect(() => {
+    const fetchIssues = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('issues')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching issues:', error);
+      } else if (data) {
+        // Transform database data to Issue type
+        const transformedIssues: Issue[] = data.map((item) => ({
+          id: item.id,
+          imageUrl: item.image_url,
+          category: item.category as IssueCategory,
+          description: item.description,
+          location: {
+            latitude: item.latitude,
+            longitude: item.longitude,
+            address: item.area ? `${item.area}, ${item.city || ''}` : undefined,
+          },
+          status: (item.status === 'inProgress' ? 'inProgress' : item.status) as IssueStatus,
+          likes: item.likes,
+          reports: item.reports,
+          createdAt: new Date(item.created_at),
+          updatedAt: new Date(item.updated_at),
+          assignedTo: item.assigned_to || undefined,
+          reportedBy: 'Citizen',
+        }));
+        setIssues(transformedIssues);
+      }
+      setLoading(false);
+    };
+
+    fetchIssues();
+  }, []);
 
   const categories: (IssueCategory | "all")[] = [
     "all",
@@ -67,20 +108,40 @@ const Issues = () => {
     return result;
   }, [issues, categoryFilter, statusFilter, sortBy]);
 
-  const handleLike = (id: string) => {
-    setIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === id ? { ...issue, likes: issue.likes + 1 } : issue
-      )
-    );
+  const handleLike = async (id: string) => {
+    const issue = issues.find(i => i.id === id);
+    if (!issue) return;
+    
+    const { error } = await supabase
+      .from('issues')
+      .update({ likes: issue.likes + 1 })
+      .eq('id', id);
+    
+    if (!error) {
+      setIssues((prev) =>
+        prev.map((i) =>
+          i.id === id ? { ...i, likes: i.likes + 1 } : i
+        )
+      );
+    }
   };
 
-  const handleReReport = (id: string) => {
-    setIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === id ? { ...issue, reports: issue.reports + 1 } : issue
-      )
-    );
+  const handleReReport = async (id: string) => {
+    const issue = issues.find(i => i.id === id);
+    if (!issue) return;
+    
+    const { error } = await supabase
+      .from('issues')
+      .update({ reports: issue.reports + 1 })
+      .eq('id', id);
+    
+    if (!error) {
+      setIssues((prev) =>
+        prev.map((i) =>
+          i.id === id ? { ...i, reports: i.reports + 1 } : i
+        )
+      );
+    }
   };
 
   const statusCounts = useMemo(() => {
@@ -163,7 +224,11 @@ const Issues = () => {
           </div>
 
           {/* Issues Grid */}
-          {filteredIssues.length > 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : filteredIssues.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredIssues.map((issue) => (
                 <IssueCard

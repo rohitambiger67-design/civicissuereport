@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -7,37 +7,105 @@ import Footer from "@/components/Footer";
 import IssueCard from "@/components/IssueCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Camera } from "lucide-react";
+import { ClipboardList, Camera, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { mockIssues } from "@/data/mockIssues";
+import { supabase } from "@/integrations/supabase/client";
+import { Issue, IssueCategory, IssueStatus } from "@/types/issue";
 
 const MyIssues = () => {
   const { t } = useLanguage();
-  const { user, profile, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [myIssues, setMyIssues] = useState<Issue[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Redirect if not logged in
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       navigate("/auth");
     }
-  }, [user, loading, navigate]);
+  }, [user, authLoading, navigate]);
 
-  // For demo purposes, filter issues by the user's display name
-  // In a real app, this would filter by user_id
-  const myIssues = mockIssues.filter(
-    (issue) => issue.reportedBy === profile?.display_name
-  );
+  // Fetch user's issues from database
+  useEffect(() => {
+    const fetchMyIssues = async () => {
+      if (!user) return;
+      
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('issues')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
-  const handleLike = (id: string) => {
-    console.log("Liked issue:", id);
+      if (error) {
+        console.error('Error fetching my issues:', error);
+      } else if (data) {
+        const transformedIssues: Issue[] = data.map((item) => ({
+          id: item.id,
+          imageUrl: item.image_url,
+          category: item.category as IssueCategory,
+          description: item.description,
+          location: {
+            latitude: item.latitude,
+            longitude: item.longitude,
+            address: item.area ? `${item.area}, ${item.city || ''}` : undefined,
+          },
+          status: (item.status === 'inProgress' ? 'inProgress' : item.status) as IssueStatus,
+          likes: item.likes,
+          reports: item.reports,
+          createdAt: new Date(item.created_at),
+          updatedAt: new Date(item.updated_at),
+          assignedTo: item.assigned_to || undefined,
+          reportedBy: 'You',
+        }));
+        setMyIssues(transformedIssues);
+      }
+      setLoading(false);
+    };
+
+    if (user) {
+      fetchMyIssues();
+    }
+  }, [user]);
+
+  const handleLike = async (id: string) => {
+    const issue = myIssues.find(i => i.id === id);
+    if (!issue) return;
+    
+    const { error } = await supabase
+      .from('issues')
+      .update({ likes: issue.likes + 1 })
+      .eq('id', id);
+    
+    if (!error) {
+      setMyIssues((prev) =>
+        prev.map((i) =>
+          i.id === id ? { ...i, likes: i.likes + 1 } : i
+        )
+      );
+    }
   };
 
-  const handleReReport = (id: string) => {
-    console.log("Re-reported issue:", id);
+  const handleReReport = async (id: string) => {
+    const issue = myIssues.find(i => i.id === id);
+    if (!issue) return;
+    
+    const { error } = await supabase
+      .from('issues')
+      .update({ reports: issue.reports + 1 })
+      .eq('id', id);
+    
+    if (!error) {
+      setMyIssues((prev) =>
+        prev.map((i) =>
+          i.id === id ? { ...i, reports: i.reports + 1 } : i
+        )
+      );
+    }
   };
 
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -63,7 +131,11 @@ const MyIssues = () => {
             </Link>
           </div>
 
-          {myIssues.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : myIssues.length === 0 ? (
             <Card className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center py-16">
                 <ClipboardList className="h-16 w-16 text-muted-foreground/40 mb-4" />
