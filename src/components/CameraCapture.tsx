@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Camera, RefreshCw, X, MapPin } from "lucide-react";
@@ -14,11 +14,13 @@ const CameraCapture = ({ onCapture, capturedImage, onRetake }: CameraCaptureProp
   const { t } = useLanguage();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [location, setLocation] = useState<GeolocationPosition | null>(null);
   const [locationLoading, setLocationLoading] = useState(true);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [isVideoReady, setIsVideoReady] = useState(false);
 
   // Get location on mount
   useEffect(() => {
@@ -41,55 +43,95 @@ const CameraCapture = ({ onCapture, capturedImage, onRetake }: CameraCaptureProp
     }
   }, []);
 
-  const startCamera = useCallback(async () => {
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    setIsStreaming(false);
+    setIsVideoReady(false);
+  };
+
+  const startCamera = async () => {
+    // Don't start if already streaming or if we have a captured image
+    if (streamRef.current || capturedImage) return;
+
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: { 
+          facingMode: "environment", 
+          width: { ideal: 1280 }, 
+          height: { ideal: 720 } 
+        },
       });
-      setStream(mediaStream);
+      
+      streamRef.current = mediaStream;
+      
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
+        // Wait for video to be ready before allowing capture
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play().then(() => {
+            setIsVideoReady(true);
+          }).catch(console.error);
+        };
       }
+      
+      setIsStreaming(true);
       setCameraError(null);
     } catch (error) {
       console.error("Camera error:", error);
       setCameraError(t("cameraError"));
     }
-  }, [t]);
+  };
 
-  const stopCamera = useCallback(() => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      setStream(null);
-    }
-  }, [stream]);
-
+  // Start camera when component mounts and no captured image
   useEffect(() => {
     if (!capturedImage) {
       startCamera();
     }
-    return () => stopCamera();
-  }, [capturedImage, startCamera, stopCamera]);
+    
+    return () => {
+      stopCamera();
+    };
+  }, [capturedImage]);
 
   const handleCapture = () => {
-    if (videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(video, 0, 0);
-        const imageData = canvas.toDataURL("image/jpeg", 0.8);
+    if (!videoRef.current || !canvasRef.current || !isVideoReady) return;
+    
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    
+    // Ensure video has valid dimensions
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      console.error("Video dimensions not ready");
+      return;
+    }
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.drawImage(video, 0, 0);
+      const imageData = canvas.toDataURL("image/jpeg", 0.8);
+      
+      // Verify image data is valid (not blank)
+      if (imageData && imageData.length > 100) {
         stopCamera();
         onCapture(imageData, location);
+      } else {
+        console.error("Captured image data is invalid");
       }
     }
   };
 
   const handleRetake = () => {
     onRetake();
-    startCamera();
+    // Small delay before restarting camera to ensure clean state
+    setTimeout(() => {
+      startCamera();
+    }, 100);
   };
 
   if (capturedImage) {
@@ -173,9 +215,10 @@ const CameraCapture = ({ onCapture, capturedImage, onRetake }: CameraCaptureProp
                 size="xl"
                 variant="civic-accent"
                 className="gap-2 rounded-full shadow-xl"
+                disabled={!isVideoReady}
               >
                 <Camera className="h-5 w-5" />
-                {t("capturePhoto")}
+                {isVideoReady ? t("capturePhoto") : "Loading..."}
               </Button>
             </div>
           </div>
