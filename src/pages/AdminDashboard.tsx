@@ -9,6 +9,9 @@ import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -35,6 +38,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Database, Trash2, Edit, Loader2, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -55,6 +66,14 @@ interface DbIssue {
   user_id: string | null;
 }
 
+interface EditFormData {
+  category: string;
+  description: string;
+  status: string;
+  likes: number;
+  reports: number;
+}
+
 const AdminDashboard = () => {
   const { t } = useLanguage();
   const { user, loading: authLoading } = useAuth();
@@ -63,8 +82,15 @@ const AdminDashboard = () => {
 
   const [issues, setIssues] = useState<DbIssue[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editStatus, setEditStatus] = useState<string>('');
+  const [editingIssue, setEditingIssue] = useState<DbIssue | null>(null);
+  const [editForm, setEditForm] = useState<EditFormData>({
+    category: '',
+    description: '',
+    status: '',
+    likes: 0,
+    reports: 0,
+  });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !adminLoading) {
@@ -103,22 +129,47 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleStatusChange = async (id: string, newStatus: string) => {
+  const openEditDialog = (issue: DbIssue) => {
+    setEditingIssue(issue);
+    setEditForm({
+      category: issue.category,
+      description: issue.description,
+      status: issue.status,
+      likes: issue.likes,
+      reports: issue.reports,
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingIssue) return;
+
+    setSaving(true);
     const { error } = await supabase
       .from('issues')
-      .update({ status: newStatus })
-      .eq('id', id);
+      .update({
+        category: editForm.category,
+        description: editForm.description,
+        status: editForm.status,
+        likes: editForm.likes,
+        reports: editForm.reports,
+      })
+      .eq('id', editingIssue.id);
 
     if (error) {
-      toast.error('Failed to update status');
+      toast.error('Failed to update issue');
       console.error(error);
     } else {
-      toast.success('Status updated successfully');
+      toast.success('Issue updated successfully');
       setIssues((prev) =>
-        prev.map((i) => (i.id === id ? { ...i, status: newStatus } : i))
+        prev.map((i) =>
+          i.id === editingIssue.id
+            ? { ...i, ...editForm }
+            : i
+        )
       );
-      setEditingId(null);
+      setEditingIssue(null);
     }
+    setSaving(false);
   };
 
   const statusColors: Record<string, string> = {
@@ -126,6 +177,16 @@ const AdminDashboard = () => {
     inProgress: 'bg-blue-100 text-blue-800',
     resolved: 'bg-green-100 text-green-800',
   };
+
+  const categoryOptions = [
+    'pothole',
+    'streetlight',
+    'garbage',
+    'graffiti',
+    'sidewalk',
+    'drainage',
+    'other',
+  ];
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -209,25 +270,9 @@ const AdminDashboard = () => {
                             </div>
                           </TableCell>
                           <TableCell>
-                            {editingId === issue.id ? (
-                              <Select
-                                value={editStatus}
-                                onValueChange={(val) => handleStatusChange(issue.id, val)}
-                              >
-                                <SelectTrigger className="w-32 h-8">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="pending">Pending</SelectItem>
-                                  <SelectItem value="inProgress">In Progress</SelectItem>
-                                  <SelectItem value="resolved">Resolved</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <Badge className={statusColors[issue.status] || 'bg-gray-100'}>
-                                {t(issue.status)}
-                              </Badge>
-                            )}
+                            <Badge className={statusColors[issue.status] || 'bg-gray-100'}>
+                              {t(issue.status)}
+                            </Badge>
                           </TableCell>
                           <TableCell className="text-center">{issue.likes}</TableCell>
                           <TableCell className="text-center">{issue.reports}</TableCell>
@@ -239,10 +284,7 @@ const AdminDashboard = () => {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => {
-                                  setEditingId(issue.id);
-                                  setEditStatus(issue.status);
-                                }}
+                                onClick={() => openEditDialog(issue)}
                                 className="h-8 w-8"
                               >
                                 <Edit className="h-4 w-4" />
@@ -288,6 +330,95 @@ const AdminDashboard = () => {
           </Card>
         </div>
       </main>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingIssue} onOpenChange={(open) => !open && setEditingIssue(null)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Issue</DialogTitle>
+            <DialogDescription>
+              Update the issue details below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="category">Category</Label>
+              <Select
+                value={editForm.category}
+                onValueChange={(val) => setEditForm({ ...editForm, category: val })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((cat) => (
+                    <SelectItem key={cat} value={cat} className="capitalize">
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={editForm.description}
+                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={editForm.status}
+                onValueChange={(val) => setEditForm({ ...editForm, status: val })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="inProgress">In Progress</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="likes">Likes</Label>
+                <Input
+                  id="likes"
+                  type="number"
+                  min="0"
+                  value={editForm.likes}
+                  onChange={(e) => setEditForm({ ...editForm, likes: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="reports">Reports</Label>
+                <Input
+                  id="reports"
+                  type="number"
+                  min="0"
+                  value={editForm.reports}
+                  onChange={(e) => setEditForm({ ...editForm, reports: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingIssue(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
