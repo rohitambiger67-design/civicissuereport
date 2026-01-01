@@ -98,9 +98,14 @@ const IssueCard = ({ issue, onLike, onReReport }: IssueCardProps) => {
         <p className="text-sm text-foreground line-clamp-2 mb-3">{issue.description}</p>
 
         {/* Location */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-          <MapPin className="h-4 w-4 text-civic-saffron" />
-          <span>{issue.location.address || `${issue.location.latitude}, ${issue.location.longitude}`}</span>
+        <div className="flex flex-col gap-1 text-sm text-muted-foreground mb-3">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-civic-saffron flex-shrink-0" />
+            <span>{issue.location.address || "Location not available"}</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground/70 ml-6">
+            <span>📍 {issue.location.latitude.toFixed(6)}, {issue.location.longitude.toFixed(6)}</span>
+          </div>
         </div>
 
         {/* Reporter & Assignment */}
