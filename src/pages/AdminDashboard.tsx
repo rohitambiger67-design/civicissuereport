@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
@@ -46,9 +46,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Database, Trash2, Edit, Loader2, MapPin, Upload } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Database, Trash2, Edit, Loader2, MapPin, Upload, CalendarIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { useRef } from 'react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface DbIssue {
   id: string;
@@ -64,6 +71,7 @@ interface DbIssue {
   reports: number;
   assigned_to: string | null;
   created_at: string;
+  updated_at: string;
   user_id: string | null;
 }
 
@@ -73,6 +81,12 @@ interface EditFormData {
   status: string;
   likes: number;
   image_url: string;
+  latitude: number;
+  longitude: number;
+  city: string;
+  area: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 const AdminDashboard = () => {
@@ -90,6 +104,12 @@ const AdminDashboard = () => {
     status: '',
     likes: 0,
     image_url: '',
+    latitude: 0,
+    longitude: 0,
+    city: '',
+    area: '',
+    created_at: new Date(),
+    updated_at: new Date(),
   });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -140,6 +160,12 @@ const AdminDashboard = () => {
       status: issue.status,
       likes: issue.likes,
       image_url: issue.image_url,
+      latitude: issue.latitude,
+      longitude: issue.longitude,
+      city: issue.city || '',
+      area: issue.area || '',
+      created_at: new Date(issue.created_at),
+      updated_at: new Date(issue.updated_at || issue.created_at),
     });
   };
 
@@ -185,6 +211,12 @@ const AdminDashboard = () => {
         status: editForm.status,
         likes: editForm.likes,
         image_url: editForm.image_url,
+        latitude: editForm.latitude,
+        longitude: editForm.longitude,
+        city: editForm.city || null,
+        area: editForm.area || null,
+        created_at: editForm.created_at.toISOString(),
+        updated_at: editForm.updated_at.toISOString(),
       })
       .eq('id', editingIssue.id);
 
@@ -196,7 +228,12 @@ const AdminDashboard = () => {
       setIssues((prev) =>
         prev.map((i) =>
           i.id === editingIssue.id
-            ? { ...i, ...editForm }
+            ? { 
+                ...i, 
+                ...editForm,
+                created_at: editForm.created_at.toISOString(),
+                updated_at: editForm.updated_at.toISOString(),
+              }
             : i
         )
       );
@@ -366,7 +403,7 @@ const AdminDashboard = () => {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingIssue} onOpenChange={(open) => !open && setEditingIssue(null)}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Issue</DialogTitle>
             <DialogDescription>
@@ -427,7 +464,121 @@ const AdminDashboard = () => {
                 onChange={(e) => setEditForm({ ...editForm, likes: parseInt(e.target.value) || 0 })}
               />
             </div>
-            <div className="grid gap-2">
+
+            {/* Location Section */}
+            <div className="border-t pt-4 mt-2">
+              <h4 className="font-medium mb-3 flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                Location
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="latitude">Latitude</Label>
+                  <Input
+                    id="latitude"
+                    type="number"
+                    step="any"
+                    value={editForm.latitude}
+                    onChange={(e) => setEditForm({ ...editForm, latitude: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="longitude">Longitude</Label>
+                  <Input
+                    id="longitude"
+                    type="number"
+                    step="any"
+                    value={editForm.longitude}
+                    onChange={(e) => setEditForm({ ...editForm, longitude: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="city">City</Label>
+                  <Input
+                    id="city"
+                    value={editForm.city}
+                    onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                    placeholder="Enter city"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="area">Area</Label>
+                  <Input
+                    id="area"
+                    value={editForm.area}
+                    onChange={(e) => setEditForm({ ...editForm, area: e.target.value })}
+                    placeholder="Enter area"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Dates Section */}
+            <div className="border-t pt-4 mt-2">
+              <h4 className="font-medium mb-3 flex items-center gap-2">
+                <CalendarIcon className="h-4 w-4" />
+                Dates
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label>Created At</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !editForm.created_at && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {editForm.created_at ? format(editForm.created_at, "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={editForm.created_at}
+                        onSelect={(date) => date && setEditForm({ ...editForm, created_at: date })}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="grid gap-2">
+                  <Label>Updated At</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !editForm.updated_at && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {editForm.updated_at ? format(editForm.updated_at, "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={editForm.updated_at}
+                        onSelect={(date) => date && setEditForm({ ...editForm, updated_at: date })}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </div>
+
+            {/* Photo Section */}
+            <div className="grid gap-2 border-t pt-4 mt-2">
               <Label>Photo</Label>
               <div className="flex items-center gap-4">
                 {editForm.image_url && (
