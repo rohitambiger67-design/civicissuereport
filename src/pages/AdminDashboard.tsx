@@ -46,8 +46,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Database, Trash2, Edit, Loader2, MapPin } from 'lucide-react';
+import { Database, Trash2, Edit, Loader2, MapPin, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRef } from 'react';
 
 interface DbIssue {
   id: string;
@@ -71,7 +72,7 @@ interface EditFormData {
   description: string;
   status: string;
   likes: number;
-  reports: number;
+  image_url: string;
 }
 
 const AdminDashboard = () => {
@@ -88,9 +89,11 @@ const AdminDashboard = () => {
     description: '',
     status: '',
     likes: 0,
-    reports: 0,
+    image_url: '',
   });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!authLoading && !adminLoading) {
@@ -136,8 +139,38 @@ const AdminDashboard = () => {
       description: issue.description,
       status: issue.status,
       likes: issue.likes,
-      reports: issue.reports,
+      image_url: issue.image_url,
     });
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !editingIssue) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${editingIssue.id}-${Date.now()}.${fileExt}`;
+      const filePath = `issue-images/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('issues')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('issues')
+        .getPublicUrl(filePath);
+
+      setEditForm({ ...editForm, image_url: publicUrl });
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -151,7 +184,7 @@ const AdminDashboard = () => {
         description: editForm.description,
         status: editForm.status,
         likes: editForm.likes,
-        reports: editForm.reports,
+        image_url: editForm.image_url,
       })
       .eq('id', editingIssue.id);
 
@@ -384,26 +417,48 @@ const AdminDashboard = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="likes">Likes</Label>
-                <Input
-                  id="likes"
-                  type="number"
-                  min="0"
-                  value={editForm.likes}
-                  onChange={(e) => setEditForm({ ...editForm, likes: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="reports">Reports</Label>
-                <Input
-                  id="reports"
-                  type="number"
-                  min="0"
-                  value={editForm.reports}
-                  onChange={(e) => setEditForm({ ...editForm, reports: parseInt(e.target.value) || 0 })}
-                />
+            <div className="grid gap-2">
+              <Label htmlFor="likes">Likes</Label>
+              <Input
+                id="likes"
+                type="number"
+                min="0"
+                value={editForm.likes}
+                onChange={(e) => setEditForm({ ...editForm, likes: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Photo</Label>
+              <div className="flex items-center gap-4">
+                {editForm.image_url && (
+                  <img
+                    src={editForm.image_url}
+                    alt="Issue"
+                    className="h-20 w-28 object-cover rounded border"
+                  />
+                )}
+                <div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    {uploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Upload className="h-4 w-4 mr-2" />
+                    )}
+                    {uploading ? 'Uploading...' : 'Change Photo'}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
