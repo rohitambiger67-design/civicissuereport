@@ -87,23 +87,6 @@ const MyIssues = () => {
     }
   };
 
-  const handleReReport = async (id: string) => {
-    const issue = myIssues.find(i => i.id === id);
-    if (!issue) return;
-    
-    const { error } = await supabase
-      .from('issues')
-      .update({ reports: issue.reports + 1 })
-      .eq('id', id);
-    
-    if (!error) {
-      setMyIssues((prev) =>
-        prev.map((i) =>
-          i.id === id ? { ...i, reports: i.reports + 1 } : i
-        )
-      );
-    }
-  };
 
   if (authLoading) {
     return (
@@ -160,7 +143,6 @@ const MyIssues = () => {
                   key={issue.id}
                   issue={issue}
                   onLike={handleLike}
-                  onReReport={handleReReport}
                 />
               ))}
             </div>

@@ -19,14 +19,6 @@ const RecentIssues = () => {
     );
   };
 
-  const handleReReport = (id: string) => {
-    setIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === id ? { ...issue, reports: issue.reports + 1 } : issue
-      )
-    );
-  };
-
   return (
     <section className="py-16">
       <div className="container">
@@ -46,7 +38,6 @@ const RecentIssues = () => {
               key={issue.id}
               issue={issue}
               onLike={handleLike}
-              onReReport={handleReReport}
             />
           ))}
         </div>
