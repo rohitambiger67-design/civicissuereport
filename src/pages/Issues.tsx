@@ -126,23 +126,6 @@ const Issues = () => {
     }
   };
 
-  const handleReReport = async (id: string) => {
-    const issue = issues.find(i => i.id === id);
-    if (!issue) return;
-    
-    const { error } = await supabase
-      .from('issues')
-      .update({ reports: issue.reports + 1 })
-      .eq('id', id);
-    
-    if (!error) {
-      setIssues((prev) =>
-        prev.map((i) =>
-          i.id === id ? { ...i, reports: i.reports + 1 } : i
-        )
-      );
-    }
-  };
 
   const statusCounts = useMemo(() => {
     return {
@@ -235,7 +218,6 @@ const Issues = () => {
                   key={issue.id}
                   issue={issue}
                   onLike={handleLike}
-                  onReReport={handleReReport}
                 />
               ))}
             </div>

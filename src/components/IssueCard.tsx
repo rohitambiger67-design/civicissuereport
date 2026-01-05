@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ThumbsUp, AlertTriangle, MapPin, Clock, User } from "lucide-react";
+import { ThumbsUp, MapPin, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -12,10 +12,9 @@ import { useNavigate } from "react-router-dom";
 interface IssueCardProps {
   issue: Issue;
   onLike: (id: string) => void;
-  onReReport: (id: string) => void;
 }
 
-const IssueCard = ({ issue, onLike, onReReport }: IssueCardProps) => {
+const IssueCard = ({ issue, onLike }: IssueCardProps) => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -46,15 +45,6 @@ const IssueCard = ({ issue, onLike, onReReport }: IssueCardProps) => {
     toast.success(t("likeSuccess"));
   };
 
-  const handleReReport = () => {
-    if (!user) {
-      toast.error(t("loginToSupport"));
-      navigate("/auth");
-      return;
-    }
-    onReReport(issue.id);
-    toast.success(t("reReportSuccess"));
-  };
 
   const timeAgo = (date: Date) => {
     const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
@@ -128,10 +118,6 @@ const IssueCard = ({ issue, onLike, onReReport }: IssueCardProps) => {
               <ThumbsUp className="h-4 w-4" />
               <span className="font-medium">{issue.likes}</span>
             </span>
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <AlertTriangle className="h-4 w-4" />
-              <span className="font-medium">{issue.reports}</span>
-            </span>
           </div>
 
           {/* Actions */}
@@ -143,16 +129,7 @@ const IssueCard = ({ issue, onLike, onReReport }: IssueCardProps) => {
               className="gap-1 text-muted-foreground hover:text-primary"
             >
               <ThumbsUp className="h-4 w-4" />
-              {t("likeThis")}
-            </Button>
-            <Button
-              variant="civic-outline"
-              size="sm"
-              onClick={handleReReport}
-              className="gap-1"
-            >
-              <AlertTriangle className="h-4 w-4" />
-              {t("reReport")}
+              {t("support")}
             </Button>
           </div>
         </div>
