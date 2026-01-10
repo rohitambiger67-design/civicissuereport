@@ -14,10 +14,55 @@ export type Database = {
   }
   public: {
     Tables: {
+      issue_feedback: {
+        Row: {
+          comments: string | null
+          communication_quality: number
+          created_at: string
+          id: string
+          issue_id: string
+          overall_experience: number
+          resolution_satisfaction: number
+          speed_of_work: number
+          user_id: string
+        }
+        Insert: {
+          comments?: string | null
+          communication_quality: number
+          created_at?: string
+          id?: string
+          issue_id: string
+          overall_experience: number
+          resolution_satisfaction: number
+          speed_of_work: number
+          user_id: string
+        }
+        Update: {
+          comments?: string | null
+          communication_quality?: number
+          created_at?: string
+          id?: string
+          issue_id?: string
+          overall_experience?: number
+          resolution_satisfaction?: number
+          speed_of_work?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_feedback_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       issues: {
         Row: {
           area: string | null
           assigned_to: string | null
+          average_rating: number | null
           category: string
           city: string | null
           created_at: string
@@ -35,6 +80,7 @@ export type Database = {
         Insert: {
           area?: string | null
           assigned_to?: string | null
+          average_rating?: number | null
           category: string
           city?: string | null
           created_at?: string
@@ -52,6 +98,7 @@ export type Database = {
         Update: {
           area?: string | null
           assigned_to?: string | null
+          average_rating?: number | null
           category?: string
           city?: string | null
           created_at?: string

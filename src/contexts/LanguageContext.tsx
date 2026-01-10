@@ -458,6 +458,72 @@ const translations: Translations = {
     hi: "डेटाबेस देखें",
     kn: "ಡೇಟಾಬೇಸ್ ವೀಕ್ಷಿಸಿ"
   },
+  // Feedback
+  feedbackTitle: {
+    en: "Rate the Resolution",
+    hi: "समाधान को रेट करें",
+    kn: "ಪರಿಹಾರವನ್ನು ರೇಟ್ ಮಾಡಿ"
+  },
+  feedbackDescription: {
+    en: "Please rate your experience with how this issue was resolved",
+    hi: "कृपया इस समस्या को कैसे हल किया गया उसके बारे में अपना अनुभव रेट करें",
+    kn: "ಈ ಸಮಸ್ಯೆಯನ್ನು ಹೇಗೆ ಪರಿಹರಿಸಲಾಗಿದೆ ಎಂಬುದರ ಬಗ್ಗೆ ನಿಮ್ಮ ಅನುಭವವನ್ನು ರೇಟ್ ಮಾಡಿ"
+  },
+  additionalComments: {
+    en: "Additional Comments (Optional)",
+    hi: "अतिरिक्त टिप्पणियाँ (वैकल्पिक)",
+    kn: "ಹೆಚ್ಚುವರಿ ಕಾಮೆಂಟ್‌ಗಳು (ಐಚ್ಛಿಕ)"
+  },
+  feedbackCommentsPlaceholder: {
+    en: "Share any additional feedback about the resolution...",
+    hi: "समाधान के बारे में कोई अतिरिक्त प्रतिक्रिया साझा करें...",
+    kn: "ಪರಿಹಾರದ ಬಗ್ಗೆ ಯಾವುದೇ ಹೆಚ್ಚುವರಿ ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ಹಂಚಿಕೊಳ್ಳಿ..."
+  },
+  submitFeedback: {
+    en: "Submit Feedback",
+    hi: "प्रतिक्रिया जमा करें",
+    kn: "ಪ್ರತಿಕ್ರಿಯೆ ಸಲ್ಲಿಸಿ"
+  },
+  feedbackSuccess: {
+    en: "Thank you for your feedback!",
+    hi: "आपकी प्रतिक्रिया के लिए धन्यवाद!",
+    kn: "ನಿಮ್ಮ ಪ್ರತಿಕ್ರಿಯೆಗೆ ಧನ್ಯವಾದಗಳು!"
+  },
+  feedbackError: {
+    en: "Failed to submit feedback. Please try again.",
+    hi: "प्रतिक्रिया जमा करने में विफल। कृपया पुनः प्रयास करें।",
+    kn: "ಪ್ರತಿಕ್ರಿಯೆ ಸಲ್ಲಿಸಲು ವಿಫಲವಾಗಿದೆ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+  },
+  feedbackAlreadySubmitted: {
+    en: "You have already submitted feedback for this issue.",
+    hi: "आपने इस समस्या के लिए पहले ही प्रतिक्रिया जमा कर दी है।",
+    kn: "ಈ ಸಮಸ್ಯೆಗಾಗಿ ನೀವು ಈಗಾಗಲೇ ಪ್ರತಿಕ್ರಿಯೆ ಸಲ್ಲಿಸಿದ್ದೀರಿ."
+  },
+  rateFeedback: {
+    en: "Rate Resolution",
+    hi: "समाधान रेट करें",
+    kn: "ಪರಿಹಾರವನ್ನು ರೇಟ್ ಮಾಡಿ"
+  },
+  cancel: {
+    en: "Cancel",
+    hi: "रद्द करें",
+    kn: "ರದ್ದುಮಾಡಿ"
+  },
+  support: {
+    en: "Support",
+    hi: "समर्थन करें",
+    kn: "ಬೆಂಬಲ"
+  },
+  rating: {
+    en: "Rating",
+    hi: "रेटिंग",
+    kn: "ರೇಟಿಂಗ್"
+  },
+  feedbackSubmitted: {
+    en: "Feedback Submitted",
+    hi: "प्रतिक्रिया जमा हुई",
+    kn: "ಪ್ರತಿಕ್ರಿಯೆ ಸಲ್ಲಿಸಲಾಗಿದೆ"
+  },
 };
 
 interface LanguageContextType {

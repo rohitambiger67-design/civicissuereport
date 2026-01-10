@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ThumbsUp, MapPin, Clock, User } from "lucide-react";
+import { ThumbsUp, MapPin, Clock, User, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -12,9 +12,11 @@ import { useNavigate } from "react-router-dom";
 interface IssueCardProps {
   issue: Issue;
   onLike: (id: string) => void;
+  showFeedbackButton?: boolean;
+  onFeedback?: (id: string) => void;
 }
 
-const IssueCard = ({ issue, onLike }: IssueCardProps) => {
+const IssueCard = ({ issue, onLike, showFeedbackButton = false, onFeedback }: IssueCardProps) => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -118,10 +120,33 @@ const IssueCard = ({ issue, onLike }: IssueCardProps) => {
               <ThumbsUp className="h-4 w-4" />
               <span className="font-medium">{issue.likes}</span>
             </span>
+            {issue.averageRating && (
+              <span className="flex items-center gap-1 text-yellow-600">
+                <Star className="h-4 w-4 fill-yellow-400" />
+                <span className="font-medium">{issue.averageRating}</span>
+              </span>
+            )}
           </div>
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            {showFeedbackButton && issue.status === "resolved" && !issue.hasFeedback && onFeedback && (
+              <Button
+                variant="civic"
+                size="sm"
+                onClick={() => onFeedback(issue.id)}
+                className="gap-1"
+              >
+                <Star className="h-4 w-4" />
+                {t("rateFeedback")}
+              </Button>
+            )}
+            {issue.hasFeedback && (
+              <Badge variant="outline" className="gap-1 text-green-600 border-green-200">
+                <Star className="h-3 w-3 fill-green-500" />
+                {t("feedbackSubmitted")}
+              </Badge>
+            )}
             <Button
               variant="ghost"
               size="sm"

@@ -26,6 +26,8 @@ export interface Issue {
   assignedTo?: string;
   createdAt: Date;
   updatedAt: Date;
+  averageRating?: number;
+  hasFeedback?: boolean;
 }
 
 export interface Department {

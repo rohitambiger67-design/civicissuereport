@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import IssueCard from "@/components/IssueCard";
+import FeedbackDialog from "@/components/FeedbackDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Camera, Loader2 } from "lucide-react";
@@ -18,6 +19,8 @@ const MyIssues = () => {
   const navigate = useNavigate();
   const [myIssues, setMyIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
+  const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -27,43 +30,63 @@ const MyIssues = () => {
   }, [user, authLoading, navigate]);
 
   // Fetch user's issues from database
-  useEffect(() => {
-    const fetchMyIssues = async () => {
-      if (!user) return;
-      
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('issues')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+  const fetchMyIssues = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    
+    // Fetch issues
+    const { data: issuesData, error: issuesError } = await supabase
+      .from('issues')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching my issues:', error);
-      } else if (data) {
-        const transformedIssues: Issue[] = data.map((item) => ({
-          id: item.id,
-          imageUrl: item.image_url,
-          category: item.category as IssueCategory,
-          description: item.description,
-          location: {
-            latitude: item.latitude,
-            longitude: item.longitude,
-            address: item.area ? `${item.area}, ${item.city || ''}` : undefined,
-          },
-          status: (item.status === 'inProgress' ? 'inProgress' : item.status) as IssueStatus,
-          likes: item.likes,
-          reports: item.reports,
-          createdAt: new Date(item.created_at),
-          updatedAt: new Date(item.updated_at),
-          assignedTo: item.assigned_to || undefined,
-          reportedBy: 'You',
-        }));
-        setMyIssues(transformedIssues);
-      }
+    if (issuesError) {
+      console.error('Error fetching my issues:', issuesError);
       setLoading(false);
-    };
+      return;
+    }
 
+    // Fetch feedback for user's issues to check which ones have feedback
+    const { data: feedbackData, error: feedbackError } = await supabase
+      .from('issue_feedback')
+      .select('issue_id')
+      .eq('user_id', user.id);
+
+    if (feedbackError) {
+      console.error('Error fetching feedback:', feedbackError);
+    }
+
+    const feedbackIssueIds = new Set(feedbackData?.map(f => f.issue_id) || []);
+
+    if (issuesData) {
+      const transformedIssues: Issue[] = issuesData.map((item) => ({
+        id: item.id,
+        imageUrl: item.image_url,
+        category: item.category as IssueCategory,
+        description: item.description,
+        location: {
+          latitude: item.latitude,
+          longitude: item.longitude,
+          address: item.area ? `${item.area}, ${item.city || ''}` : undefined,
+        },
+        status: (item.status === 'inProgress' ? 'inProgress' : item.status) as IssueStatus,
+        likes: item.likes,
+        reports: item.reports,
+        createdAt: new Date(item.created_at),
+        updatedAt: new Date(item.updated_at),
+        assignedTo: item.assigned_to || undefined,
+        reportedBy: 'You',
+        averageRating: item.average_rating ? parseFloat(item.average_rating.toString()) : undefined,
+        hasFeedback: feedbackIssueIds.has(item.id),
+      }));
+      setMyIssues(transformedIssues);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     if (user) {
       fetchMyIssues();
     }
@@ -87,6 +110,15 @@ const MyIssues = () => {
     }
   };
 
+  const handleFeedback = (id: string) => {
+    setSelectedIssueId(id);
+    setFeedbackDialogOpen(true);
+  };
+
+  const handleFeedbackSubmitted = () => {
+    // Refresh issues to update the hasFeedback and averageRating
+    fetchMyIssues();
+  };
 
   if (authLoading) {
     return (
@@ -143,6 +175,8 @@ const MyIssues = () => {
                   key={issue.id}
                   issue={issue}
                   onLike={handleLike}
+                  showFeedbackButton={true}
+                  onFeedback={handleFeedback}
                 />
               ))}
             </div>
@@ -150,6 +184,16 @@ const MyIssues = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Feedback Dialog */}
+      {selectedIssueId && (
+        <FeedbackDialog
+          open={feedbackDialogOpen}
+          onOpenChange={setFeedbackDialogOpen}
+          issueId={selectedIssueId}
+          onFeedbackSubmitted={handleFeedbackSubmitted}
+        />
+      )}
     </div>
   );
 };
