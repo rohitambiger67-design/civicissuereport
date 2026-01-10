@@ -55,6 +55,7 @@ const Issues = () => {
           updatedAt: new Date(item.updated_at),
           assignedTo: item.assigned_to || undefined,
           reportedBy: 'Citizen',
+          averageRating: item.average_rating ? parseFloat(item.average_rating.toString()) : undefined,
         }));
         setIssues(transformedIssues);
       }
