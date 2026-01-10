@@ -114,21 +114,26 @@ const IssueCard = ({ issue, onLike, showFeedbackButton = false, onFeedback }: Is
 
       <CardFooter className="border-t bg-secondary/30 p-3">
         <div className="flex w-full items-center justify-between">
-          {/* Stats */}
-          <div className="flex items-center gap-4 text-sm">
-            <span className="flex items-center gap-1 text-muted-foreground">
+          {/* Left: Thumbs-up button + Stats */}
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLike}
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
+            >
               <ThumbsUp className="h-4 w-4" />
-              <span className="font-medium">{issue.likes}</span>
-            </span>
+            </Button>
+            <span className="text-sm font-medium text-muted-foreground">{issue.likes}</span>
             {issue.averageRating && (
-              <span className="flex items-center gap-1 text-yellow-600">
+              <span className="flex items-center gap-1 text-sm text-yellow-600">
                 <Star className="h-4 w-4 fill-yellow-400" />
                 <span className="font-medium">{issue.averageRating}</span>
               </span>
             )}
           </div>
 
-          {/* Actions */}
+          {/* Right: Feedback Actions */}
           <div className="flex items-center gap-2">
             {showFeedbackButton && issue.status === "resolved" && !issue.hasFeedback && onFeedback && (
               <Button
@@ -147,15 +152,6 @@ const IssueCard = ({ issue, onLike, showFeedbackButton = false, onFeedback }: Is
                 {t("feedbackSubmitted")}
               </Badge>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLike}
-              className="gap-1 text-muted-foreground hover:text-primary"
-            >
-              <ThumbsUp className="h-4 w-4" />
-              {t("support")}
-            </Button>
           </div>
         </div>
       </CardFooter>
