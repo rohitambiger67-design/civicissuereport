@@ -17,9 +17,19 @@ const Footer = () => {
             <span>•</span>
             <span>Hubli-Dharwad Municipal Corporation</span>
           </div>
-          <div className="mt-4 text-xs text-muted-foreground">
-            <span>Built by: </span>
-            <span className="font-medium">Dhananjay, Rohit, Mansoor, Sanjana, Hemavathi, Pratibha</span>
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">Built by</span>
+            <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm">
+              {["Dhananjay", "Rohit", "Mansoor", "Sanjana", "Hemavathi", "Pratibha"].map((name, index) => (
+                <span
+                  key={name}
+                  className="font-semibold bg-gradient-to-r from-civic-saffron via-primary to-civic-green bg-clip-text text-transparent hover:scale-110 transition-transform cursor-default"
+                >
+                  {name}
+                  {index < 5 && <span className="text-muted-foreground ml-3">•</span>}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
