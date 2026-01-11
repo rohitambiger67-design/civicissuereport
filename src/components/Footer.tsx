@@ -17,6 +17,10 @@ const Footer = () => {
             <span>•</span>
             <span>Hubli-Dharwad Municipal Corporation</span>
           </div>
+          <div className="mt-4 text-xs text-muted-foreground">
+            <span>Built by: </span>
+            <span className="font-medium">Dhananjay, Rohit, Mansoor, Sanjana, Hemavathi, Pratibha</span>
+          </div>
         </div>
       </div>
     </footer>
