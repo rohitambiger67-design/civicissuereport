@@ -23,7 +23,7 @@ const Footer = () => {
               {["Dhananjay", "Rohit", "Mansoor", "Sanjana", "Hemavathi", "Pratibha"].map((name, index) => (
                 <span
                   key={name}
-                  className="font-semibold bg-gradient-to-r from-civic-saffron via-primary to-civic-green bg-clip-text text-transparent hover:scale-110 transition-transform cursor-default"
+                  className="font-semibold bg-gradient-to-r from-civic-saffron via-primary to-civic-green bg-clip-text text-transparent hover:scale-110 hover:drop-shadow-[0_0_8px_hsl(var(--civic-saffron))] transition-all duration-300 cursor-default"
                 >
                   {name}
                   {index < 5 && <span className="text-muted-foreground ml-3">•</span>}
