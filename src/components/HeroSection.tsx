@@ -19,7 +19,7 @@ const HeroSection = () => {
           {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
             <span className="h-2 w-2 rounded-full bg-civic-saffron animate-pulse" />
-            <span className="text-sm font-medium">Hubli-Dharwad Municipal Corporation</span>
+            <span className="text-sm font-medium">{t("hdmcBadge")}</span>
           </div>
 
           {/* Title */}
@@ -55,11 +55,7 @@ const HeroSection = () => {
           {/* Civic Sense Paragraph */}
           <div className="max-w-3xl rounded-2xl bg-white/10 p-6 backdrop-blur-sm">
             <p className="text-primary-foreground/90 text-base md:text-lg leading-relaxed">
-              <strong className="text-civic-saffron">Civic Sense</strong> is the foundation of a thriving community. 
-              It means taking responsibility for our shared spaces—keeping our streets clean, respecting public property, 
-              following traffic rules, and being considerate neighbors. When each citizen contributes to the well-being 
-              of their city, we create safer, cleaner, and more harmonious environments for everyone. 
-              Together, let's build a city we're proud to call home.
+              <strong className="text-civic-saffron">{t("civicSenseLabel")}</strong> {t("civicSenseParagraph")}
             </p>
           </div>
         </div>
