@@ -226,6 +226,16 @@ const translations: Translations = {
     hi: "हुबली-धारवाड़ के नागरिकों द्वारा संचालित",
     kn: "ಹುಬ್ಬಳ್ಳಿ-ಧಾರವಾಡದ ನಾಗರಿಕರಿಂದ ನಡೆಸಲ್ಪಡುತ್ತದೆ"
   },
+  feedbackMatters: {
+    en: "Your valuable feedback matters to us!",
+    hi: "आपकी बहुमूल्य प्रतिक्रिया हमारे लिए महत्वपूर्ण है!",
+    kn: "ನಿಮ್ಮ ಅಮೂಲ್ಯ ಪ್ರತಿಕ್ರಿಯೆ ನಮಗೆ ಮುಖ್ಯವಾಗಿದೆ!"
+  },
+  feedbackButton: {
+    en: "Give Feedback",
+    hi: "प्रतिक्रिया दें",
+    kn: "ಪ್ರತಿಕ್ರಿಯೆ ನೀಡಿ"
+  },
 
   // Messages
   reportSuccess: {
