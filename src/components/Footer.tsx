@@ -35,7 +35,7 @@ const Footer = () => {
           <div className="mt-6 flex flex-col items-center gap-3">
             <p className="text-sm text-muted-foreground">{t("feedbackMatters")}</p>
             <a href="https://form.finalform.so/forms/UuSv8QkI" target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" className="gap-2">
+              <Button variant="hero" className="gap-2">
                 <MessageSquare className="h-4 w-4" />
                 {t("feedbackButton")}
               </Button>
