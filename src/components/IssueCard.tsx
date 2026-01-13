@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ThumbsUp, MapPin, Clock, User, Star } from "lucide-react";
+import { ThumbsUp, MapPin, Clock, User, Star, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -14,9 +14,11 @@ interface IssueCardProps {
   onLike: (id: string) => void;
   showFeedbackButton?: boolean;
   onFeedback?: (id: string) => void;
+  showDeleteButton?: boolean;
+  onDelete?: (id: string) => void;
 }
 
-const IssueCard = ({ issue, onLike, showFeedbackButton = false, onFeedback }: IssueCardProps) => {
+const IssueCard = ({ issue, onLike, showFeedbackButton = false, onFeedback, showDeleteButton = false, onDelete }: IssueCardProps) => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -78,6 +80,18 @@ const IssueCard = ({ issue, onLike, showFeedbackButton = false, onFeedback }: Is
           <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm">
             {categoryIcons[issue.category]} {t(issue.category)}
           </Badge>
+        </div>
+        <div className="absolute top-3 right-3 flex items-center gap-2">
+          {showDeleteButton && onDelete && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onDelete(issue.id)}
+              className="h-8 w-8 p-0"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
         <div className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-background/90 px-2 py-1 text-xs backdrop-blur-sm">
           <Clock className="h-3 w-3 text-muted-foreground" />
