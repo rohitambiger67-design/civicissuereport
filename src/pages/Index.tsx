@@ -1,7 +1,10 @@
+import { lazy, Suspense } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
-import HowItWorks from "@/components/HowItWorks";
+
+// Lazy load below-fold component to improve LCP
+const HowItWorks = lazy(() => import("@/components/HowItWorks"));
 
 const Index = () => {
   return (
@@ -9,7 +12,9 @@ const Index = () => {
       <Header />
       <main className="flex-1">
         <HeroSection />
-        <HowItWorks />
+        <Suspense fallback={<div className="py-16" />}>
+          <HowItWorks />
+        </Suspense>
       </main>
       <Footer />
     </div>
