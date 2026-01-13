@@ -120,6 +120,20 @@ const MyIssues = () => {
     fetchMyIssues();
   };
 
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase
+      .from('issues')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting issue:', error);
+      return;
+    }
+
+    setMyIssues((prev) => prev.filter((i) => i.id !== id));
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -177,6 +191,8 @@ const MyIssues = () => {
                   onLike={handleLike}
                   showFeedbackButton={true}
                   onFeedback={handleFeedback}
+                  showDeleteButton={true}
+                  onDelete={handleDelete}
                 />
               ))}
             </div>
