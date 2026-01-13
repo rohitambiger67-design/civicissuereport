@@ -44,8 +44,8 @@ const HeroSection = () => {
             <Link to="/issues">
               <Button
                 size="lg"
-                variant="ghost"
-                className="text-primary-foreground hover:text-primary-foreground hover:bg-white/10"
+                variant="outline"
+                className="border-2 border-white/80 bg-white/10 text-primary-foreground hover:bg-white/20 hover:border-white backdrop-blur-sm"
               >
                 {t("viewIssues")}
               </Button>
